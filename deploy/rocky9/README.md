@@ -59,7 +59,8 @@ Use:
 - `deploy/rocky9/apache-macro-mod_wsgi.conf` as a macro template
 
 Important details:
-- use `python-home=$appdir/.venv` (uv creates `.venv`)
+- use the real virtualenv path on host (`python-home=$appdir/venv` in your setup)
+- add `python-path=$appdir/src` for src-layout imports (`webauthn_test`)
 - no backend localhost port is required in this mode
 - mod_md (or your existing TLS automation) handles certificate lifecycle
 
