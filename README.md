@@ -23,7 +23,7 @@ Implemented:
 
 ### 2. Log in with password
 - Open `/auth/login`
-- Authenticate using email + password
+- Authenticate using username or email + password
 
 ### 3. Register a passkey
 - After login, open `/user/defaults`

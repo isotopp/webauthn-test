@@ -56,6 +56,26 @@ def test_login_updates_last_seen_and_creates_activity(
         assert event is not None
 
 
+def test_login_accepts_username_identity(client, app, user_factory) -> None:
+    user_id = user_factory(
+        email="username-login@example.com",
+        username="username-login",
+        password="Secretpass1!",
+    )
+
+    response = client.post(
+        "/auth/login",
+        data={"email": "username-login", "password": "Secretpass1!"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        user = db.session.get(User, user_id)
+        assert user is not None
+        assert user.last_seen_at is not None
+
+
 def test_password_reset_changes_password_and_logs_event(
     client, app, user_factory
 ) -> None:

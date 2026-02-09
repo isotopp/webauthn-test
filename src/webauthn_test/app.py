@@ -21,7 +21,7 @@ from webauthn_test.activity import register_activity_signals
 from webauthn_test.cli import register_cli
 from webauthn_test.config import Config
 from webauthn_test.extensions import db, mail, migrate, security
-from webauthn_test.forms import ExtendedRegisterForm
+from webauthn_test.forms import ExtendedLoginForm, ExtendedRegisterForm
 from webauthn_test.logging_utils import configure_logging
 from webauthn_test.models import user_datastore
 from webauthn_test.routes import bp as main_bp
@@ -33,6 +33,8 @@ def create_app(test_config: Mapping[str, object] | None = None) -> Flask:
     app.config.from_object(Config())
     if test_config:
         app.config.update(test_config)
+    app.config["SECURITY_LOGIN_FORM"] = ExtendedLoginForm
+    app.config["SECURITY_FORM_LOGIN"] = ExtendedLoginForm
     app.config["SECURITY_REGISTER_FORM"] = ExtendedRegisterForm
     app.config["SECURITY_FORM_REGISTER"] = ExtendedRegisterForm
 
