@@ -28,9 +28,7 @@ class ActivityLog(db.Model):  # type: ignore[misc, type-arg, name-defined]
     __tablename__ = "activity_logs"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(
-        db.Integer, db.ForeignKey("user.id"), nullable=True, index=True
-    )
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True, index=True)
     event = db.Column(db.String(64), nullable=False, index=True)
     detail = db.Column(db.Text, nullable=False, default="")
     ip_address = db.Column(db.String(64), nullable=False, default="")

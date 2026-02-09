@@ -88,7 +88,11 @@ def user_defaults():
 def admin_panel():
     if request.method == "POST":
         action = request.form.get("action", "")
-        user_id = int(request.form.get("user_id", "0"))
+        try:
+            user_id = int(request.form.get("user_id", "0"))
+        except ValueError:
+            flash("Invalid user id.", "error")
+            return redirect(url_for("main.admin_panel"))
         target = db.session.get(User, user_id)
         if not target:
             flash("User not found.", "error")

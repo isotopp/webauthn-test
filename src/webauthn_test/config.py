@@ -36,7 +36,9 @@ class Config:
         self.SECURITY_PASSWORD_SALT = os.getenv(
             "SECURITY_PASSWORD_SALT", "dev-salt-change-me"
         )
-        self.SECURITY_PASSWORD_HASH = os.getenv("SECURITY_PASSWORD_HASH", "pbkdf2_sha512")
+        self.SECURITY_PASSWORD_HASH = os.getenv(
+            "SECURITY_PASSWORD_HASH", "pbkdf2_sha512"
+        )
         self.SECURITY_RECOVERABLE = True
         self.SECURITY_REGISTERABLE = True
         self.SECURITY_CHANGEABLE = True

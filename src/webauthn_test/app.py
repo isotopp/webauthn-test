@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -13,11 +15,14 @@ from webauthn_test.models import user_datastore
 from webauthn_test.routes import bp as main_bp
 
 
-def create_app() -> Flask:
+def create_app(test_config: Mapping[str, object] | None = None) -> Flask:
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)  # type: ignore[assignment]
     app.config.from_object(Config())
+    if test_config:
+        app.config.update(test_config)
     app.config["SECURITY_REGISTER_FORM"] = ExtendedRegisterForm
+    app.config["SECURITY_FORM_REGISTER"] = ExtendedRegisterForm
 
     db.init_app(app)
     migrate.init_app(app, db)
