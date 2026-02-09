@@ -1,3 +1,14 @@
+"""Environment-file schema and rendering helpers.
+
+This module defines the expected `.env` shape as structured metadata and
+provides parsing/merging/rendering utilities used by bootstrap commands.
+
+Design constraints:
+- existing user-provided values are preserved by default
+- derived fields (notably RP_ID from RP_ORIGIN) stay internally consistent
+- generated secrets are only created when absent
+"""
+
 from __future__ import annotations
 
 import secrets

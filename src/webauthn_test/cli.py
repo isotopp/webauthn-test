@@ -1,3 +1,15 @@
+"""Flask CLI commands for environment, schema, and bootstrap operations.
+
+This module defines operational commands that make first-run and update flows
+repeatable: environment file initialization, schema creation, and admin
+credential provisioning.
+
+Constraints:
+- commands are idempotent where practical
+- generated admin credentials are human-readable for bootstrap usage
+- DB provisioning and filesystem side effects are explicit and testable
+"""
+
 from __future__ import annotations
 
 import secrets

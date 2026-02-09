@@ -1,3 +1,15 @@
+"""Runtime configuration model for app, security, storage, and logging.
+
+This module resolves environment variables (via python-dotenv), derives
+WebAuthn relying-party identity values, and exposes a single config object
+consumed by the Flask factory.
+
+Constraints:
+- RP origin/ID semantics must remain canonical and deterministic
+- defaults are safe for local development, not production hardening
+- path-based resources are resolved relative to repository structure
+"""
+
 from __future__ import annotations
 
 import os

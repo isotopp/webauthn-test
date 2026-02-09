@@ -1,3 +1,15 @@
+"""Security and audit activity logging utilities.
+
+This module records authentication and account-management events into the
+activity log table and connects selected Flask-Security signals to persistent
+audit entries.
+
+Constraints and structure:
+- log writes are synchronous and explicit (commit-per-event) for traceability
+- request metadata is captured opportunistically without breaking if absent
+- event schema is intentionally simple for admin-facing inspection
+"""
+
 from __future__ import annotations
 
 from flask import Flask, Request, request

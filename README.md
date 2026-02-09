@@ -1,50 +1,50 @@
 # webauthn-test
 
-`webauthn-test` ist eine Flask-Demo für klassische Account-Authentifizierung (Flask-Security) plus WebAuthn/Passkeys.
+`webauthn-test` is a Flask demo application that combines Flask-Security account flows with WebAuthn passkeys.
 
-Ziel-UX:
-- Nach erfolgreicher Anmeldung: `hello, {username}`
+Primary UX goal:
+- after successful authentication, show `hello, {username}`
 
-## Aktueller Zustand
+## Current State
 
-Implementiert:
-- Signup, Login, Passwort-Reset (Flask-Security)
-- User-Defaults-Seite (Username, PII, Credential-Version, Account-Löschung, Logout)
-- Admin-Seite (User-Liste, Edit/Delete, Activity-Log)
-- WebAuthn Passkey-Registrierung und Passkey-Login
-- SQLite + SQLAlchemy + Flask-Migrate
-- Test-Suite für auth-/state-/security-relevante Flows
+Implemented:
+- Signup, login, and password reset via Flask-Security
+- User defaults page (username updates, PII updates, credential version rotation, account deletion, logout)
+- Admin page (user list/edit/delete, activity log visibility)
+- WebAuthn passkey registration and passkey login
+- SQLite + SQLAlchemy + Flask-Migrate schema management
+- Integration-heavy tests for auth/state/security relevant behavior
 
-## How To Use (User-Facing)
+## User-Facing: How To Use
 
-### 1. Account anlegen
-- Öffne `/auth/register`
-- Felder ausfüllen (`email`, `username`, `password`)
+### 1. Register an account
+- Open `/auth/register`
+- Fill `email`, `username`, and password fields
 
-### 2. Klassisch anmelden
-- Öffne `/auth/login`
-- Mit E-Mail + Passwort anmelden
+### 2. Log in with password
+- Open `/auth/login`
+- Authenticate using email + password
 
-### 3. Passkey registrieren
-- Nach Login auf `/user/defaults`
-- „Register New Passkey“ klicken
-- Browser/WebAuthn-Dialog abschließen
+### 3. Register a passkey
+- After login, open `/user/defaults`
+- Click `Register New Passkey`
+- Complete the browser authenticator ceremony
 
-### 4. Passkey-Login nutzen
-- Öffne `/`
-- Im Abschnitt „Passkey Login“ Username eingeben
-- „Sign in with Passkey“ klicken
+### 4. Log in with passkey
+- Open `/`
+- Enter username in `Passkey Login`
+- Click `Sign in with Passkey`
 
-### 5. Profil verwalten
-- `/user/defaults`
-- Username ändern
-- PII ändern
-- Credential-Version erhöhen (invalidiert alte Passkeys)
-- Logout / Account löschen
+### 5. Manage account defaults
+- Open `/user/defaults`
+- Change username
+- Edit PII
+- Rotate credential version (invalidates older passkeys)
+- Logout or delete account
 
-## Admin-Facing
+## Admin-Facing: Install, Deploy, Update, Migrate, Operate
 
-### Installation (lokal)
+### Local install/bootstrap
 
 ```bash
 uv sync
@@ -54,23 +54,22 @@ uv run flask --app webauthn_test.app:create_app init-admin
 uv run flask --app webauthn_test.app:create_app run --debug
 ```
 
-Ergebnisse:
-- `.env` wird erzeugt/ergänzt
-- DB-Schema wird per Migration aufgebaut
-- `.admin` enthält 2 Zeilen: `admin` und generiertes Passwort
-- Admin-User wird in DB provisioniert
+What this does:
+- creates/completes `.env`
+- applies DB schema migrations
+- writes `.admin` with two lines (`admin` and generated password)
+- provisions admin user and role in the database
 
-### Deploy (uWSGI hinter Apache TLS-Terminator)
+### Deploy model (uWSGI behind Apache TLS terminator)
 
-Voraussetzungen:
-- Externe Canonical URL gesetzt als `RP_ORIGIN` (z. B. `https://webauthn.home.koehntopp.de`)
-- `RP_ID` wird daraus abgeleitet (Hostname)
-- Apache setzt Forward-Header korrekt (`Host`, `X-Forwarded-Proto`, `X-Forwarded-For`)
-- LE/TLS wird durch Apache verwaltet
+Requirements:
+- set canonical external URL in `RP_ORIGIN` (for example `https://webauthn.home.koehntopp.de`)
+- derive `RP_ID` from the canonical host
+- Apache forwards `Host`, `X-Forwarded-Proto`, `X-Forwarded-For`
+- TLS certificates are managed by Apache/Let's Encrypt
 
-App-Start:
-- WSGI-Entry: `webauthn_test.wsgi:app`
-- Reverse Proxy auf uWSGI/HTTP-App-Port
+Runtime entrypoint:
+- WSGI app: `webauthn_test.wsgi:app`
 
 ### Update
 
@@ -83,38 +82,36 @@ uv run pytest
 
 ### Migrate
 
-Neue Migration erzeugen:
+Create migration:
 
 ```bash
-uv run flask --app webauthn_test.app:create_app db migrate -m "<beschreibung>"
+uv run flask --app webauthn_test.app:create_app db migrate -m "<description>"
 ```
 
-Migration anwenden:
+Apply migration:
 
 ```bash
 uv run flask --app webauthn_test.app:create_app db upgrade
 ```
 
-### Admin Facilities nutzen
+### Use admin facilities
+- `/admin` to list/edit/delete users
+- `/admin` activity log table for authentication and user-management events
 
-- `/admin`: User sehen, editieren, löschen
-- Activity-Log einsehen
-- Sicherheitsrelevante Änderungen (Delete/Edit) werden im Log dokumentiert
+## Configuration
 
-## Konfiguration
+Configuration is loaded from `.env` via `python-dotenv`.
 
-Konfiguration via `.env` (python-dotenv).
-
-Wichtige Variablen:
-- `RP_ORIGIN` (canonical externe URL, inkl. `https://`)
+Important variables:
+- `RP_ORIGIN` (canonical external URL including `https://`)
 - `RP_NAME`
-- `RP_ID` (aus `RP_ORIGIN` abgeleitet)
-- `DATABASE_PATH` (Default: `resources/app.sqlite3`)
+- `RP_ID` (derived from `RP_ORIGIN` host)
+- `DATABASE_PATH` (default `resources/app.sqlite3`)
 - `LOG_DIR`, `LOG_FILENAME`, `LOG_MAX_KB`, `LOG_LEVEL`
 - `SECRET_KEY`, `SECURITY_PASSWORD_SALT`, `SECURITY_PASSWORD_HASH`
 - `ADMIN_EMAIL`
 
-## Relevante Endpunkte
+## Endpoints
 
 HTML:
 - `/`
@@ -130,7 +127,7 @@ WebAuthn JSON:
 - `POST /webauthn/login/begin`
 - `POST /webauthn/login/finish`
 
-## Qualitätssicherung
+## Quality Gates
 
 ```bash
 uv run ruff format .
@@ -138,3 +135,9 @@ uv run ruff check --fix .
 uv run mypy src
 uv run pytest
 ```
+
+## Test Strategy Notes
+
+See `/Users/kris/PycharmProjects/webauthn-test/tests/README.md` for:
+- what behavior the test suite functionally validates
+- what is intentionally not tested because it is brittle/low-value

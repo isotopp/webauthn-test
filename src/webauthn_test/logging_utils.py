@@ -1,3 +1,13 @@
+"""Logging handlers and configuration helpers.
+
+This module provides a combined size- and time-based rotating file handler and
+applies a deterministic logger configuration for the Flask application.
+
+Constraints:
+- logs are written to local filesystem targets configured by environment
+- rotation triggers on either midnight rollover or max size threshold
+"""
+
 from __future__ import annotations
 
 import logging

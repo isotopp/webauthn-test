@@ -1,3 +1,15 @@
+"""Database model definitions for identity, security, and audit state.
+
+The module composes Flask-Security-compatible role/user/WebAuthn models with
+application-specific fields (username, PII, credential version) and an
+activity log table.
+
+Constraints:
+- table/field compatibility with Flask-Security mixins must be preserved
+- WebAuthn credential storage must support verification replay protections
+- audit rows remain query-friendly for the admin interface
+"""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

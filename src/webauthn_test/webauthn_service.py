@@ -1,3 +1,15 @@
+"""WebAuthn option generation and verification adapter layer.
+
+This module isolates direct interaction with the `webauthn` library so routes
+can focus on HTTP/session concerns while this layer handles credential data
+shape conversion (bytes/base64url) and descriptor construction.
+
+Constraints:
+- server challenge and credential-id conversions must remain lossless
+- verification APIs are treated as the source of cryptographic truth
+- transport hints are best-effort and must not break ceremony correctness
+"""
+
 from __future__ import annotations
 
 import json

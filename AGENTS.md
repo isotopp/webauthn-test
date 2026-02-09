@@ -1,18 +1,18 @@
 # AGENTS.md
 
-Diese Datei ist die gemeinsame Arbeitsgrundlage für menschliche Entwickler und Agents im Repository.
+This file is the shared operating guide for human developers and coding agents working in this repository.
 
-## 1. Zweck und Scope
+## 1. Purpose and Scope
 
-Das Projekt liefert eine WebAuthn/Passkey-Demo auf Flask-Basis mit:
-- klassischer Authentifizierung (Signup/Login/Reset)
-- Passkey-Registrierung und Passkey-Login
-- User-Self-Service
-- Admin-Management und Activity-Logging
+This project implements a WebAuthn/passkey demo on Flask with:
+- classic account authentication (signup/login/password reset)
+- passkey registration and passkey login
+- user self-service defaults
+- admin user management and activity logging
 
-## 2. Dokumentation für menschliche Devs
+## 2. Human Developer Guide
 
-### Lokaler Ablauf (Standard)
+### Standard local workflow
 
 ```bash
 uv sync
@@ -22,7 +22,7 @@ uv run flask --app webauthn_test.app:create_app init-admin
 uv run flask --app webauthn_test.app:create_app run --debug
 ```
 
-### Qualitätsbefehle (immer vor Abschluss)
+### Mandatory quality commands before completion
 
 ```bash
 uv run ruff format .
@@ -31,70 +31,74 @@ uv run mypy src
 uv run pytest
 ```
 
-### Testing-Grundsätze
+### Testing expectations
 
-- Änderungen mit DB-/State-Mutationen müssen Tests haben.
-- Security-relevante Flows sind Pflicht: AuthN/AuthZ, Account-Löschung, Admin-Operationen, WebAuthn-Verify.
-- Keine reinen Existenz-/Callability-Tests ohne Verhaltenswert.
+- Any change that mutates DB/application state must have tests.
+- Security-sensitive paths are mandatory test targets: authn/authz, account deletion, admin actions, WebAuthn verification paths.
+- Existence-only tests (import/callability/static response) are insufficient unless they protect critical wiring.
 
-### Migrations-Grundsätze
+### Migration expectations
 
-- Schemaänderungen nur mit Alembic-Migration.
-- Bei Modelländerungen:
+- Schema changes require Alembic migrations.
+- For model changes:
 
 ```bash
-uv run flask --app webauthn_test.app:create_app db migrate -m "<beschreibung>"
+uv run flask --app webauthn_test.app:create_app db migrate -m "<description>"
 uv run flask --app webauthn_test.app:create_app db upgrade
 ```
 
-- Commit ohne passende Migration ist nicht akzeptabel.
+- Changes are not acceptable when model/schema drift exists without migration updates.
 
-## 3. Dokumentation für Agents
+## 3. Agent Guide
 
-### Technische Leitplanken
+### Technical constraints
 
-- Nutze `uv` für alle Python-Befehle.
-- Nutze vorhandene App-Factory: `webauthn_test.app:create_app`.
-- Behandle `RP_ORIGIN` als kanonische externe URL.
-- Bei Credential-Regeneration muss Credential-Version-Semantik erhalten bleiben.
-- Bei User-Delete müssen abhängige Datensätze konsistent behandelt werden.
+- Use `uv` for Python dependency and command execution.
+- Use the existing app factory: `webauthn_test.app:create_app`.
+- Treat `RP_ORIGIN` as the canonical external origin.
+- Preserve credential-version invalidation semantics when rotating credentials.
+- Preserve referential consistency when deleting users and related records.
+- Every module under `src/` must have a high-quality top-level English docstring.
+- Module docstrings must explain purpose, architectural role, and key constraints; avoid trivial method listings.
 
-### Änderungsstrategie
+### Change sequencing
 
-- Kleine, nachvollziehbare Commits/Änderungsblöcke.
-- Erst Verhalten ändern, dann Tests ergänzen/aktualisieren.
-- Vor Abschluss immer `ruff` + `mypy` + `pytest` ausführen.
-- README aktualisieren, wenn User- oder Admin-Workflow sich ändert.
+- Prefer small, auditable change sets.
+- Update behavior first, then update tests.
+- Run `ruff` + `mypy` + `pytest` before finalizing.
+- Update README when user/admin workflows change.
+- Update AGENTS when engineering process/agent rules change.
 
-### Minimaler Test-Anspruch je Feature
+### Minimum test bar per feature
 
-- Happy Path
-- Mindestens ein relevanter Fehlerfall
-- Nachweis der Persistenz-/State-Änderung (DB-Assertion)
+- At least one happy path
+- At least one relevant failure path
+- Explicit persistence/state assertions for core side effects
 
-## 4. Guardrails für AGENTS (hinterer Teil)
+## 4. Agent Guardrails (required)
 
-Diese Regeln sind verbindlich für Agents:
+- Do not bypass `uv` with direct `pip` or ad-hoc tooling execution.
+- Do not change schema-relevant models without migration updates.
+- Do not submit fake tests where stateful behavior is central.
+- Do not commit secrets (`.env`, `.admin`, real credentials/tokens).
+- Do not weaken authorization boundaries (especially admin boundaries) without explicit request.
+- Do not remove/erode security event logging without equivalent replacement.
+- When security impact is unclear, choose conservative behavior and add tests.
 
-- Keine Umgehung von `uv`; kein direktes `pip install`, `python -m pytest`, etc.
-- Keine stillen schema-relevanten Modelländerungen ohne Migration.
-- Keine „Fake“-Tests (nur Statuscode ohne Zustandseffekt), wenn Zustandseffekt zentral ist.
-- Keine Secrets im Repository einchecken (`.env`, `.admin`, reale Zugangsdaten).
-- Keine Abschwächung von AuthZ-Regeln (insb. Admin-Grenzen) ohne explizite Anforderung.
-- Keine regressiven Änderungen am Logging sicherheitsrelevanter Events ohne Ersatz.
-- Bei Unsicherheit über Security-Auswirkungen: konservativ bleiben, Risiko benennen, Tests ergänzen.
+## 5. README/AGENTS Update Guardrails (part of pass criteria)
 
-## 5. Guardrails für README/AGENTS-Updates (Tests & Pass)
+These are required pass criteria, not optional hygiene:
 
-Diese Regeln sind Teil der Pass-Kriterien:
+- If user/admin behavior changes, `README.md` must be updated in the same change.
+- If process/tooling/agent behavior changes, `AGENTS.md` must be updated in the same change.
+- A change is not considered "pass" if code behavior changed while `README.md`/`AGENTS.md` are clearly stale.
+- Review/test checks must include README/AGENTS consistency.
+- Review/test checks must include module-docstring quality and coverage for `src/` modules.
 
-- Wenn sich User- oder Admin-Workflow ändert, muss `README.md` im selben Change aktualisiert werden.
-- Wenn sich Arbeitsregeln, Tooling-Prozess oder Agent-Verhalten ändert, muss `AGENTS.md` im selben Change aktualisiert werden.
-- Ein Change gilt nicht als „fertig/pass“, wenn Code-Verhalten geändert wurde, aber `README.md`/`AGENTS.md` offensichtlich veraltet sind.
-- Review-/Test-Check umfasst daher immer auch einen Dokumentations-Stand-Check für `README.md` und `AGENTS.md`.
-- Mindestanforderung für „pass“:
-  - `uv run ruff format .`
-  - `uv run ruff check --fix .`
-  - `uv run mypy src`
-  - `uv run pytest`
-  - plus: README/AGENTS-Konsistenz bestätigt
+Minimum pass checklist:
+- `uv run ruff format .`
+- `uv run ruff check --fix .`
+- `uv run mypy src`
+- `uv run pytest`
+- documentation consistency confirmed for `README.md` and `AGENTS.md`
+- `src/` module docstring requirements confirmed

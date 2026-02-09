@@ -1,3 +1,15 @@
+"""Application factory and top-level integration wiring.
+
+This module composes the runtime system: configuration loading, extension
+initialization, blueprint registration, security integration, CLI command
+registration, proxy-awareness, and log setup.
+
+Design intent:
+- centralize cross-cutting initialization in one place
+- support deterministic test setup via optional test config injection
+- keep route/business concerns out of factory code
+"""
+
 from __future__ import annotations
 
 from collections.abc import Mapping

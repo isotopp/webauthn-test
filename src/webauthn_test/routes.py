@@ -1,3 +1,16 @@
+"""HTTP routes for user flows, admin actions, and WebAuthn ceremonies.
+
+This blueprint contains:
+- user-facing pages and account mutation actions
+- admin management actions with role-gated authorization
+- JSON endpoints for WebAuthn registration and login begin/finish steps
+
+Constraints:
+- state-changing paths must enforce authentication/authorization boundaries
+- WebAuthn challenge state is bound to server-side session context
+- security-relevant mutations write audit events
+"""
+
 from __future__ import annotations
 from datetime import UTC, datetime
 
