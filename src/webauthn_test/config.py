@@ -41,7 +41,11 @@ class Config:
         rp_origin = os.getenv("RP_ORIGIN", "https://example.invalid")
         rp_name = os.getenv("RP_NAME", "WebAuthn Demo")
 
-        database_path = Path(os.getenv("DATABASE_PATH", str(DEFAULT_DB_PATH)))
+        configured_db_path = Path(os.getenv("DATABASE_PATH", str(DEFAULT_DB_PATH)))
+        if configured_db_path.is_absolute():
+            database_path = configured_db_path
+        else:
+            database_path = BASE_DIR / configured_db_path
         database_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
