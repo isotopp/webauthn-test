@@ -15,3 +15,13 @@ webauthn-test = "webauthn_test:main"
 [build-system]
 requires = ["uv_build>=0.9.27,<0.10.0"]
 build-backend = "uv_build"
+
+[tool.ruff]
+include = ["src/**/*.py", "tests/**/*.py"]
+src = ["src", "tests"]
+
+[tool.mypy]
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
