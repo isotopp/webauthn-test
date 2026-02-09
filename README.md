@@ -113,6 +113,7 @@ uv run flask --app webauthn_test.app:create_app db upgrade
 ## Configuration
 
 Configuration is loaded from `.env` via `python-dotenv`.
+The app resolves `.env` from the repository root (`<deploy_dir>/.env`) for both CLI and WSGI runtime.
 
 Important variables:
 - `RP_ORIGIN` (canonical external URL including `https://`)

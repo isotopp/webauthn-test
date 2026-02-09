@@ -36,7 +36,7 @@ def derive_rp_id(rp_origin: str) -> str:
 
 class Config:
     def __init__(self) -> None:
-        load_dotenv()
+        load_dotenv(BASE_DIR / ".env")
 
         rp_origin = os.getenv("RP_ORIGIN", "https://example.invalid")
         rp_name = os.getenv("RP_NAME", "WebAuthn Demo")
