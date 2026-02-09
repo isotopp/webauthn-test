@@ -7,7 +7,14 @@ authors = [
     { name = "Kristian Koehntopp", email = "kris-git@koehntopp.de" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "flask>=3.1.0",
+    "flask-migrate>=4.1.0",
+    "flask-security-too>=5.6.0",
+    "flask-sqlalchemy>=3.1.1",
+    "python-dotenv>=1.0.1",
+    "sqlalchemy>=2.0.38",
+]
 
 [project.scripts]
 webauthn-test = "webauthn_test:main"
@@ -22,6 +29,14 @@ src = ["src", "tests"]
 
 [tool.mypy]
 files = ["src"]
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.4",
+    "ruff>=0.9.6",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

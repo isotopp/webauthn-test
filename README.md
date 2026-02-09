@@ -45,11 +45,23 @@ Use `uv` for all local commands.
 
 ```bash
 uv sync
+uv run flask --app webauthn_test.app:create_app init-env
+uv run flask --app webauthn_test.app:create_app init-admin
 uv run ruff format .
 uv run ruff check --fix .
 uv run mypy src
 uv run pytest
 ```
+
+## Configuration Model
+
+- Configuration is loaded from `.env` via `python-dotenv`.
+- Required WebAuthn values:
+  - `RP_ORIGIN` (canonical external URL)
+  - `RP_NAME`
+  - `RP_ID` (derived automatically from `RP_ORIGIN` hostname)
+- SQLite database path defaults to `resources/app.sqlite3`.
+- Logs default to `logs/app.log` and rotate on day-change or configured max KB.
 
 ## Repository Docs
 
