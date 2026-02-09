@@ -19,6 +19,7 @@ import click
 from flask import Flask
 from flask_security.utils import hash_password
 
+from webauthn_test.activity import log_event
 from webauthn_test.env_registry import merged_env, parse_env_file, render_env_file
 from webauthn_test.extensions import db
 from webauthn_test.models import User, user_datastore
@@ -118,3 +119,18 @@ def register_cli(app: Flask) -> None:
 
         db.session.commit()
         click.echo("Provisioned admin role/user in database.")
+
+    @app.cli.command("set-pass")
+    @click.argument("username", type=str)
+    @click.argument("password", type=str)
+    def set_pass(username: str, password: str) -> None:
+        user = user_datastore.find_user(username=username)
+        if not user:
+            msg = f"User '{username}' not found."
+            raise click.ClickException(msg)
+
+        user.password = hash_password(password)
+        db.session.add(user)
+        db.session.commit()
+        log_event(event="password_set_by_cli", user=user, detail=f"username={username}")
+        click.echo(f"Updated password for '{username}'.")

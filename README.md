@@ -108,6 +108,7 @@ uv run flask --app webauthn_test.app:create_app db upgrade
 ### Use admin facilities
 - `/admin` to list/edit/delete users
 - `/admin` activity log table for authentication and user-management events
+- `uv run flask --app webauthn_test.app:create_app set-pass <username> <password>` to set/reset a user's password from CLI
 
 ## Configuration
 
