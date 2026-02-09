@@ -60,22 +60,27 @@ What this does:
 - writes `.admin` with two lines (`admin` and generated password)
 - provisions admin user and role in the database
 
-### Deploy model (uWSGI behind Apache TLS terminator)
+### Deploy model (Apache TLS terminator, Rocky 9)
 
 Requirements:
 - set canonical external URL in `RP_ORIGIN` (for example `https://webauthn.home.koehntopp.de`)
 - derive `RP_ID` from the canonical host
-- Apache forwards `Host`, `X-Forwarded-Proto`, `X-Forwarded-For`
-- TLS certificates are managed by Apache/Let's Encrypt
+- TLS certificates are managed by Apache (for example via `mod_md`)
 
-Runtime entrypoint:
-- WSGI app: `webauthn_test.wsgi:app`
+Primary deployment mode (matches your existing pattern):
+- Apache `mod_wsgi` daemon mode via repository `app.wsgi`
+- no separate backend port required
 
 Rocky Linux 9 deployment templates:
 - `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/README.md`
-- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/webauthn.service`
-- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/uwsgi.ini`
-- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/apache-vhost.conf`
+- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/apache-macro-mod_wsgi.conf`
+
+Optional alternative mode:
+- Apache reverse proxy to uWSGI HTTP backend on `127.0.0.1:<port>`
+- templates retained in:
+  - `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/webauthn.service`
+  - `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/uwsgi.ini`
+  - `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/apache-vhost.conf`
 
 ### Update
 

@@ -1,39 +1,40 @@
 # Rocky Linux 9 Deployment Notes
 
 This directory contains deployment templates for running `webauthn-test` as
-user `webauthn:webauthn` behind Apache TLS termination.
+user `webauthn:webauthn` on Rocky Linux 9 with Apache TLS termination.
 
 ## Assumptions
 
 - OS: Rocky Linux 9
 - Process user: `webauthn:webauthn`
-- Reverse proxy: Apache on `:443`
-- App backend: uWSGI HTTP socket on `127.0.0.1:8080`
+- Canonical app path: `/home/webauthn/webauth`
 - Canonical external origin: `https://webauthn.home.koehntopp.de`
+- Apache TLS automation via mod_md (or equivalent)
 
 ## Install baseline packages
 
+For Apache + mod_wsgi deployment:
+
 ```bash
-sudo dnf install -y httpd mod_ssl uwsgi
+sudo dnf install -y httpd mod_ssl mod_wsgi mod_macro
 ```
 
-(If your uWSGI package split requires python plugin packages, install those as
-well according to your repository policy.)
+For Apache reverse proxy to uWSGI HTTP backend, also install `uwsgi`.
 
 ## Application location
 
 Deploy the repository to:
-- `/opt/webauthn-test/current`
+- `/home/webauthn/webauth`
 
 Ensure ownership:
 
 ```bash
-sudo chown -R webauthn:webauthn /opt/webauthn-test
+sudo chown -R webauthn:webauthn /home/webauthn/webauth
 ```
 
 ## Application bootstrap
 
-Run as `webauthn` in `/opt/webauthn-test/current`:
+Run as `webauthn` in `/home/webauthn/webauth`:
 
 ```bash
 uv sync
@@ -51,41 +52,42 @@ Set at least:
 Optional ops-reference fields (not used by app runtime):
 - `IMAP_HOST`, `IMAP_PORT`, `IMAP_USERNAME`, `IMAP_PASSWORD`
 
-## systemd
+## Apache + mod_wsgi (recommended for your current setup)
 
-Install service file:
+Use:
+- `app.wsgi` at repository root
+- `deploy/rocky9/apache-macro-mod_wsgi.conf` as a macro template
 
-```bash
-sudo cp deploy/rocky9/webauthn.service /etc/systemd/system/webauthn.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now webauthn.service
-sudo systemctl status webauthn.service
-```
+Important details:
+- use `python-home=$appdir/.venv` (uv creates `.venv`)
+- no backend localhost port is required in this mode
+- mod_md (or your existing TLS automation) handles certificate lifecycle
 
-## Apache
-
-Install vhost template and reload Apache:
+Install config and reload Apache:
 
 ```bash
-sudo cp deploy/rocky9/apache-vhost.conf /etc/httpd/conf.d/webauthn.conf
+sudo cp deploy/rocky9/apache-macro-mod_wsgi.conf /etc/httpd/conf.sites.d/webauthn.home.koehntopp.de.conf
 sudo apachectl configtest
 sudo systemctl reload httpd
 ```
 
-## uWSGI config
+## Apache reverse proxy + uWSGI backend (optional alternative)
 
-Template is provided at:
+If you prefer a separate service with `127.0.0.1:8080` backend:
+- `deploy/rocky9/webauthn.service`
 - `deploy/rocky9/uwsgi.ini`
-
-Adjust process/thread counts to host sizing if needed.
+- `deploy/rocky9/apache-vhost.conf`
 
 ## Update procedure
 
 ```bash
-cd /opt/webauthn-test/current
+cd /home/webauthn/webauth
 git pull
 uv sync
 uv run flask --app webauthn_test.app:create_app db upgrade
 uv run pytest
-sudo systemctl restart webauthn.service
+# For mod_wsgi mode:
+sudo systemctl reload httpd
+# For uWSGI backend mode:
+# sudo systemctl restart webauthn.service
 ```
