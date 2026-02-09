@@ -5,8 +5,11 @@ from pathlib import Path
 
 import click
 from flask import Flask
+from flask_security.utils import hash_password
 
 from webauthn_test.env_registry import merged_env, parse_env_file, render_env_file
+from webauthn_test.extensions import db
+from webauthn_test.models import User, user_datastore
 
 
 def generate_readable_password(groups: int = 4, group_len: int = 4) -> str:
@@ -18,6 +21,11 @@ def generate_readable_password(groups: int = 4, group_len: int = 4) -> str:
 
 
 def register_cli(app: Flask) -> None:
+    @app.cli.command("init-db")
+    def init_db() -> None:
+        db.create_all()
+        click.echo("Initialized database tables.")
+
     @app.cli.command("init-env")
     @click.option("--rp-origin", type=str, help="External canonical origin.")
     @click.option("--rp-name", type=str, help="WebAuthn relying party display name.")
@@ -54,7 +62,13 @@ def register_cli(app: Flask) -> None:
         show_default=True,
     )
     @click.option("--force", is_flag=True, help="Overwrite existing .admin file.")
-    def init_admin(output_file: Path, force: bool) -> None:
+    @click.option(
+        "--provision-db/--no-provision-db",
+        default=True,
+        show_default=True,
+        help="Create or update the admin role/user in the database.",
+    )
+    def init_admin(output_file: Path, force: bool, provision_db: bool) -> None:
         if output_file.exists() and not force:
             click.echo(f"{output_file} exists. Use --force to overwrite.")
             return
@@ -63,3 +77,32 @@ def register_cli(app: Flask) -> None:
         password = generate_readable_password()
         output_file.write_text(f"{username}\n{password}\n", encoding="utf-8")
         click.echo(f"Wrote {output_file}")
+
+        if not provision_db:
+            return
+
+        db.create_all()
+
+        admin_role = user_datastore.find_role("admin")
+        if not admin_role:
+            admin_role = user_datastore.create_role(name="admin")
+
+        admin = user_datastore.find_user(username=username)
+        if not admin:
+            admin_email = app.config["ADMIN_EMAIL"]
+            admin = user_datastore.create_user(
+                email=admin_email,
+                username=username,
+                password=hash_password(password),
+                active=True,
+                full_name="Administrator",
+                pii="",
+            )
+        else:
+            admin.password = hash_password(password)
+
+        if isinstance(admin, User) and not admin.has_role("admin"):
+            user_datastore.add_role_to_user(admin, admin_role)
+
+        db.session.commit()
+        click.echo("Provisioned admin role/user in database.")

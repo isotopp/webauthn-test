@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>User Defaults</h1>
+
+  <h2>Change Username</h2>
+  <form method="post">
+    <input type="hidden" name="action" value="change_username">
+    <input name="username" type="text" value="{{ user.username }}" required>
+    <button type="submit">Save Username</button>
+  </form>
+
+  <h2>Edit PII</h2>
+  <form method="post">
+    <input type="hidden" name="action" value="edit_pii">
+    <p>
+      <label>Full name<br>
+      <input name="full_name" type="text" value="{{ user.full_name }}"></label>
+    </p>
+    <p>
+      <label>PII blob (demo)<br>
+      <textarea name="pii">{{ user.pii }}</textarea></label>
+    </p>
+    <button type="submit">Save Profile</button>
+  </form>
+
+  <h2>Regenerate Credentials</h2>
+  <p>Current credential version: {{ user.credential_version }}</p>
+  <form method="post">
+    <input type="hidden" name="action" value="regen_credentials">
+    <button type="submit">Increment Credential Version</button>
+  </form>
+
+  <h2>Session</h2>
+  <form method="post" class="inline">
+    <input type="hidden" name="action" value="logout">
+    <button type="submit">Logout</button>
+  </form>
+
+  <h2>Delete Account</h2>
+  <form method="post" onsubmit="return confirm('Delete account permanently?');">
+    <input type="hidden" name="action" value="delete_account">
+    <button type="submit">Delete My Account</button>
+  </form>
+{% endblock %}

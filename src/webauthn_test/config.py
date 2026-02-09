@@ -36,9 +36,18 @@ class Config:
         self.SECURITY_PASSWORD_SALT = os.getenv(
             "SECURITY_PASSWORD_SALT", "dev-salt-change-me"
         )
+        self.SECURITY_PASSWORD_HASH = os.getenv("SECURITY_PASSWORD_HASH", "pbkdf2_sha512")
         self.SECURITY_RECOVERABLE = True
         self.SECURITY_REGISTERABLE = True
+        self.SECURITY_CHANGEABLE = True
         self.SECURITY_SEND_REGISTER_EMAIL = False
+        self.SECURITY_UNIFIED_SIGNIN = False
+        self.SECURITY_URL_PREFIX = "/auth"
+        self.SECURITY_POST_LOGIN_VIEW = "/"
+        self.SECURITY_POST_LOGOUT_VIEW = "/"
+        self.SECURITY_POST_REGISTER_VIEW = "/user/defaults"
+        self.SECURITY_POST_RESET_VIEW = "/"
+        self.MAIL_SUPPRESS_SEND = True
 
         self.RP_ORIGIN = rp_origin
         self.RP_NAME = rp_name
@@ -51,3 +60,5 @@ class Config:
         self.LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
         self.LOG_FILENAME = os.getenv("LOG_FILENAME", "app.log")
         self.LOG_MAX_KB = int(os.getenv("LOG_MAX_KB", "1024"))
+
+        self.ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.invalid")

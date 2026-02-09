@@ -29,7 +29,11 @@ The primary user experience goal is:
 
 ## Project Status
 
-Bootstrap phase: documentation and development guardrails are in place, implementation is next.
+Initial app scaffold is implemented:
+- Flask app factory with Flask-Security + SQLAlchemy integration
+- Signup/login/password-recovery routes via Flask-Security
+- User defaults page and admin page
+- Activity logging model and admin-visible activity table
 
 ## Tech Stack
 - Python
@@ -46,12 +50,22 @@ Use `uv` for all local commands.
 ```bash
 uv sync
 uv run flask --app webauthn_test.app:create_app init-env
+uv run flask --app webauthn_test.app:create_app init-db
 uv run flask --app webauthn_test.app:create_app init-admin
+uv run flask --app webauthn_test.app:create_app run --debug
 uv run ruff format .
 uv run ruff check --fix .
 uv run mypy src
 uv run pytest
 ```
+
+Open:
+- `/` for the "hello, {username}" landing page
+- `/auth/register` for signup
+- `/auth/login` for login
+- `/auth/forgot` for password recovery
+- `/user/defaults` for account defaults
+- `/admin` for admin user + activity views
 
 ## Configuration Model
 
@@ -62,6 +76,8 @@ uv run pytest
   - `RP_ID` (derived automatically from `RP_ORIGIN` hostname)
 - SQLite database path defaults to `resources/app.sqlite3`.
 - Logs default to `logs/app.log` and rotate on day-change or configured max KB.
+- Password hashing defaults to `pbkdf2_sha512`.
+- `init-admin` creates username `admin` with a generated readable password and writes two lines to `.admin`.
 
 ## Repository Docs
 

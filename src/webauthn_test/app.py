@@ -1,21 +1,29 @@
 from __future__ import annotations
 
-from flask import Flask, jsonify
+from flask import Flask
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from webauthn_test.activity import register_activity_signals
 from webauthn_test.cli import register_cli
 from webauthn_test.config import Config
-from webauthn_test.extensions import db, migrate
+from webauthn_test.extensions import db, migrate, security
+from webauthn_test.forms import ExtendedRegisterForm
 from webauthn_test.logging_utils import configure_logging
+from webauthn_test.models import user_datastore
+from webauthn_test.routes import bp as main_bp
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)  # type: ignore[assignment]
     app.config.from_object(Config())
+    app.config["SECURITY_REGISTER_FORM"] = ExtendedRegisterForm
 
     db.init_app(app)
     migrate.init_app(app, db)
+    security.init_app(app, user_datastore)
+    app.register_blueprint(main_bp)
+    register_activity_signals(app)
     register_cli(app)
 
     configure_logging(
@@ -28,10 +36,6 @@ def create_app() -> Flask:
 
     @app.get("/healthz")
     def healthz():
-        return jsonify({"status": "ok"}), 200
-
-    @app.get("/")
-    def index():
-        return jsonify({"message": "hello, {username}"}), 200
+        return {"status": "ok"}, 200
 
     return app

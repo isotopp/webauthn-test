@@ -27,6 +27,11 @@ REGISTRY: tuple[EnvField, ...] = (
     EnvField("SECRET_KEY", "Flask session/signing secret key.", True),
     EnvField("SECURITY_PASSWORD_SALT", "Password hashing/recovery salt.", True),
     EnvField(
+        "SECURITY_PASSWORD_HASH",
+        "Passlib scheme used for password hashing.",
+        default="pbkdf2_sha512",
+    ),
+    EnvField(
         "DATABASE_PATH",
         "SQLite database location.",
         default="resources/app.sqlite3",
@@ -38,6 +43,11 @@ REGISTRY: tuple[EnvField, ...] = (
         "LOG_MAX_KB",
         "Rotate logs when this size in KB is exceeded.",
         default="1024",
+    ),
+    EnvField(
+        "ADMIN_EMAIL",
+        "Email address used for the initial admin account.",
+        default="admin@example.invalid",
     ),
 )
 

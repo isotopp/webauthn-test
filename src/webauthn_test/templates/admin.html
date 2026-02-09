@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>Admin</h1>
+
+  <h2>Users</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Username</th>
+        <th>Last login</th>
+        <th>Full name</th>
+        <th>PII</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.last_login_at or "" }}</td>
+        <td>{{ user.full_name }}</td>
+        <td>{{ user.pii }}</td>
+        <td>
+          <form method="post" class="inline">
+            <input type="hidden" name="action" value="delete_user">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit">Delete</button>
+          </form>
+          <details>
+            <summary>Edit</summary>
+            <form method="post">
+              <input type="hidden" name="action" value="edit_user">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <p><input name="username" type="text" value="{{ user.username }}"></p>
+              <p><input name="full_name" type="text" value="{{ user.full_name }}"></p>
+              <p><textarea name="pii">{{ user.pii }}</textarea></p>
+              <button type="submit">Save</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Recent Activity</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>When</th>
+        <th>User ID</th>
+        <th>Event</th>
+        <th>Detail</th>
+        <th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in activities %}
+      <tr>
+        <td>{{ event.created_at }}</td>
+        <td>{{ event.user_id or "" }}</td>
+        <td>{{ event.event }}</td>
+        <td>{{ event.detail }}</td>
+        <td>{{ event.ip_address }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

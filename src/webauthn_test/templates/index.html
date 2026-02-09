@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>WebAuthn Demo</h1>
+  {% if username %}
+    <p>hello, {{ username }}</p>
+  {% else %}
+    <p>Please <a href="{{ url_for('security.login') }}">log in</a> or <a href="{{ url_for('security.register') }}">register</a>.</p>
+  {% endif %}
+{% endblock %}
