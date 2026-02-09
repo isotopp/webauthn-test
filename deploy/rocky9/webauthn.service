@@ -1,0 +1,19 @@
+[Unit]
+Description=webauthn-test uWSGI service
+After=network.target
+
+[Service]
+Type=notify
+User=webauthn
+Group=webauthn
+WorkingDirectory=/opt/webauthn-test/current
+EnvironmentFile=/opt/webauthn-test/current/.env
+RuntimeDirectory=webauthn
+RuntimeDirectoryMode=0750
+ExecStart=/usr/bin/env uv run uwsgi --ini /opt/webauthn-test/current/deploy/rocky9/uwsgi.ini
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

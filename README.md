@@ -71,6 +71,12 @@ Requirements:
 Runtime entrypoint:
 - WSGI app: `webauthn_test.wsgi:app`
 
+Rocky Linux 9 deployment templates:
+- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/README.md`
+- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/webauthn.service`
+- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/uwsgi.ini`
+- `/Users/kris/PycharmProjects/webauthn-test/deploy/rocky9/apache-vhost.conf`
+
 ### Update
 
 ```bash
@@ -110,6 +116,10 @@ Important variables:
 - `LOG_DIR`, `LOG_FILENAME`, `LOG_MAX_KB`, `LOG_LEVEL`
 - `SECRET_KEY`, `SECURITY_PASSWORD_SALT`, `SECURITY_PASSWORD_HASH`
 - `ADMIN_EMAIL`
+- `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `MAIL_PASSWORD`
+- `MAIL_DEFAULT_SENDER`, `SECURITY_EMAIL_SENDER`
+- `IMAP_HOST`, `IMAP_PORT`, `IMAP_USERNAME`, `IMAP_PASSWORD` (ops reference; not consumed by runtime)
+- `APP_HOST`, `APP_PORT` (backend bind target for reverse proxy)
 
 ## Endpoints
 

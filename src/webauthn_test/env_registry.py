@@ -60,6 +60,49 @@ REGISTRY: tuple[EnvField, ...] = (
         "Email address used for the initial admin account.",
         default="admin@example.invalid",
     ),
+    EnvField(
+        "SECURITY_EMAIL_SENDER",
+        "From-address used by Flask-Security email flows.",
+        default="noreply@localhost",
+    ),
+    EnvField("MAIL_SERVER", "SMTP submit host/IP.", default="127.0.0.1"),
+    EnvField("MAIL_PORT", "SMTP submit port.", default="587"),
+    EnvField("MAIL_USE_TLS", "Use STARTTLS for SMTP submit.", default="true"),
+    EnvField("MAIL_USE_SSL", "Use implicit SSL for SMTP.", default="false"),
+    EnvField("MAIL_USERNAME", "SMTP submit username.", default=""),
+    EnvField("MAIL_PASSWORD", "SMTP submit password.", default=""),
+    EnvField(
+        "MAIL_DEFAULT_SENDER",
+        "Envelope/header sender for app emails.",
+        default="noreply@localhost",
+    ),
+    EnvField(
+        "MAIL_SUPPRESS_SEND",
+        "Set true to disable email delivery (tests/dev only).",
+        default="false",
+    ),
+    EnvField(
+        "IMAP_HOST",
+        "IMAPS host/IP (ops reference; not used by app).",
+        default="127.0.0.1",
+    ),
+    EnvField(
+        "IMAP_PORT", "IMAPS port (ops reference; not used by app).", default="993"
+    ),
+    EnvField(
+        "IMAP_USERNAME", "IMAPS username (ops reference; not used by app).", default=""
+    ),
+    EnvField(
+        "IMAP_PASSWORD", "IMAPS password (ops reference; not used by app).", default=""
+    ),
+    EnvField(
+        "APP_HOST",
+        "HTTP bind host for local reverse-proxy target.",
+        default="127.0.0.1",
+    ),
+    EnvField(
+        "APP_PORT", "HTTP bind port for local reverse-proxy target.", default="8080"
+    ),
 )
 
 

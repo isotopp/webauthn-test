@@ -20,7 +20,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from webauthn_test.activity import register_activity_signals
 from webauthn_test.cli import register_cli
 from webauthn_test.config import Config
-from webauthn_test.extensions import db, migrate, security
+from webauthn_test.extensions import db, mail, migrate, security
 from webauthn_test.forms import ExtendedRegisterForm
 from webauthn_test.logging_utils import configure_logging
 from webauthn_test.models import user_datastore
@@ -38,6 +38,7 @@ def create_app(test_config: Mapping[str, object] | None = None) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
     security.init_app(app, user_datastore)
     app.register_blueprint(main_bp)
     register_activity_signals(app)

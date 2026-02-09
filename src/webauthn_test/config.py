@@ -61,7 +61,25 @@ class Config:
         self.SECURITY_POST_LOGOUT_VIEW = "/"
         self.SECURITY_POST_REGISTER_VIEW = "/user/defaults"
         self.SECURITY_POST_RESET_VIEW = "/"
-        self.MAIL_SUPPRESS_SEND = True
+        self.SECURITY_EMAIL_SENDER = os.getenv(
+            "SECURITY_EMAIL_SENDER", "noreply@localhost"
+        )
+
+        self.MAIL_SERVER = os.getenv("MAIL_SERVER", "127.0.0.1")
+        self.MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+        self.MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "true").lower() == "true"
+        self.MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "false").lower() == "true"
+        self.MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
+        self.MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
+        self.MAIL_DEFAULT_SENDER = os.getenv(
+            "MAIL_DEFAULT_SENDER", self.SECURITY_EMAIL_SENDER
+        )
+        self.MAIL_SUPPRESS_SEND = (
+            os.getenv("MAIL_SUPPRESS_SEND", "false").lower() == "true"
+        )
+
+        self.APP_HOST = os.getenv("APP_HOST", "127.0.0.1")
+        self.APP_PORT = int(os.getenv("APP_PORT", "8080"))
 
         self.RP_ORIGIN = rp_origin
         self.RP_NAME = rp_name
