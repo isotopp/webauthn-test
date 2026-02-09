@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import cast
 
 from flask_security import SQLAlchemyUserDatastore
 from flask_security.models import fsqla_v3 as fsqla
+from webauthn.helpers import bytes_to_base64url
 
 from webauthn_test.extensions import db
 
@@ -41,6 +43,31 @@ class ActivityLog(db.Model):  # type: ignore[misc, type-arg, name-defined]
     )
 
     user = db.relationship("User", backref=db.backref("activity_logs", lazy="dynamic"))
+
+
+class WebAuthn(db.Model, fsqla.FsWebAuthnMixin):  # type: ignore[misc, type-arg, name-defined]
+    __tablename__ = "webauthn"
+
+    aaguid = db.Column(db.String(64), nullable=False, default="")
+    credential_version = db.Column(db.Integer, nullable=False, default=1, index=True)
+    lastuse_datetime = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+        index=True,
+    )
+
+    def credential_id_b64(self) -> str:
+        return bytes_to_base64url(cast(bytes, self.credential_id))
+
+    def transports_list(self) -> list[str]:
+        transports = cast(list[str] | None, self.transports)
+        if not transports:
+            return []
+        return [str(item) for item in transports]
+
+
+Authenticator = WebAuthn
 
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)

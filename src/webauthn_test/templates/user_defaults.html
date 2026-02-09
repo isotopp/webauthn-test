@@ -2,6 +2,39 @@
 {% block body %}
   <h1>User Defaults</h1>
 
+  <h2>Passkeys</h2>
+  <p>Current credential version: {{ user.credential_version }}</p>
+  <button id="register-passkey" type="button">Register New Passkey</button>
+  <p id="passkey-status"></p>
+  {% if authenticators %}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Sign count</th>
+          <th>Created</th>
+          <th>Last used</th>
+          <th>Device type</th>
+          <th>Backed up</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for authenticator in authenticators %}
+        <tr>
+          <td>{{ authenticator.credential_id_b64()[:16] }}...</td>
+          <td>{{ authenticator.sign_count }}</td>
+          <td>{{ authenticator.create_datetime }}</td>
+          <td>{{ authenticator.lastuse_datetime or "" }}</td>
+          <td>{{ authenticator.device_type }}</td>
+          <td>{{ authenticator.backup_state }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No passkeys registered for this credential version.</p>
+  {% endif %}
+
   <h2>Change Username</h2>
   <form method="post">
     <input type="hidden" name="action" value="change_username">
@@ -41,4 +74,66 @@
     <input type="hidden" name="action" value="delete_account">
     <button type="submit">Delete My Account</button>
   </form>
+
+  <script>
+    const passkeyStatusNode = document.getElementById("passkey-status");
+    function b64urlToBytes(value) {
+      const padding = "=".repeat((4 - value.length % 4) % 4);
+      const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+    function bytesToB64url(bytes) {
+      let binary = "";
+      bytes.forEach((b) => { binary += String.fromCharCode(b); });
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+    function decodeCreationOptions(options) {
+      options.challenge = b64urlToBytes(options.challenge);
+      options.user.id = b64urlToBytes(options.user.id);
+      if (Array.isArray(options.excludeCredentials)) {
+        options.excludeCredentials = options.excludeCredentials.map((item) => ({
+          ...item,
+          id: b64urlToBytes(item.id),
+        }));
+      }
+      return options;
+    }
+    function encodeAttestation(credential) {
+      return {
+        id: credential.id,
+        rawId: bytesToB64url(new Uint8Array(credential.rawId)),
+        type: credential.type,
+        response: {
+          attestationObject: bytesToB64url(new Uint8Array(credential.response.attestationObject)),
+          clientDataJSON: bytesToB64url(new Uint8Array(credential.response.clientDataJSON)),
+          transports: credential.response.getTransports ? credential.response.getTransports() : [],
+        },
+      };
+    }
+    document.getElementById("register-passkey").addEventListener("click", async () => {
+      try {
+        passkeyStatusNode.textContent = "Preparing passkey registration...";
+        const beginResp = await fetch("/webauthn/register/begin", { method: "POST" });
+        const beginData = await beginResp.json();
+        if (!beginResp.ok) throw new Error(beginData.error || "Passkey registration begin failed");
+        const publicKey = decodeCreationOptions(beginData);
+        const credential = await navigator.credentials.create({ publicKey });
+        if (!credential) throw new Error("No credential created.");
+        const finishResp = await fetch("/webauthn/register/finish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(encodeAttestation(credential)),
+        });
+        const finishData = await finishResp.json();
+        if (!finishResp.ok) throw new Error(finishData.error || "Passkey registration failed");
+        passkeyStatusNode.textContent = "Passkey registered.";
+        window.location.reload();
+      } catch (error) {
+        passkeyStatusNode.textContent = String(error);
+      }
+    });
+  </script>
 {% endblock %}

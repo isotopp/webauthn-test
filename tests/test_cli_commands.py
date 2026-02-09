@@ -15,7 +15,13 @@ def test_init_db_creates_expected_tables(app) -> None:
 
     with app.app_context():
         table_names = set(inspect(db.engine).get_table_names())
-    assert {"user", "role", "roles_users", "activity_logs"}.issubset(table_names)
+    assert {
+        "user",
+        "role",
+        "roles_users",
+        "activity_logs",
+        "webauthn",
+    }.issubset(table_names)
 
 
 def test_init_admin_provisions_db_and_writes_file(app, tmp_path: Path) -> None:
