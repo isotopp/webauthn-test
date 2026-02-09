@@ -65,6 +65,12 @@ class Config:
         self.SECURITY_POST_LOGOUT_VIEW = "/"
         self.SECURITY_POST_REGISTER_VIEW = "/user/defaults"
         self.SECURITY_POST_RESET_VIEW = "/"
+        self.SECURITY_EMAIL_VALIDATOR_ARGS = {
+            "check_deliverability": os.getenv(
+                "SECURITY_CHECK_EMAIL_DELIVERABILITY", "false"
+            ).lower()
+            == "true"
+        }
         self.SECURITY_EMAIL_SENDER = os.getenv(
             "SECURITY_EMAIL_SENDER", "noreply@localhost"
         )

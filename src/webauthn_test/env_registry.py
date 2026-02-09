@@ -65,6 +65,11 @@ REGISTRY: tuple[EnvField, ...] = (
         "From-address used by Flask-Security email flows.",
         default="noreply@localhost",
     ),
+    EnvField(
+        "SECURITY_CHECK_EMAIL_DELIVERABILITY",
+        "Set true to enforce deliverability checks on email fields.",
+        default="false",
+    ),
     EnvField("MAIL_SERVER", "SMTP submit host/IP.", default="127.0.0.1"),
     EnvField("MAIL_PORT", "SMTP submit port.", default="587"),
     EnvField("MAIL_USE_TLS", "Use STARTTLS for SMTP submit.", default="true"),
