@@ -1,0 +1,11 @@
+{
+  "project": "webauthn-test",
+  "documentation": [
+    "/Users/kris/PycharmProjects/webauthn-test/README.md",
+    "/Users/kris/PycharmProjects/webauthn-test/AGENTS.md"
+  ],
+  "agent_guidance": {
+    "primary": "/Users/kris/PycharmProjects/webauthn-test/AGENTS.md",
+    "user_docs": "/Users/kris/PycharmProjects/webauthn-test/README.md"
+  }
+}
